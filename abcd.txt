@@ -1,0 +1,20 @@
+this query should retrive all the records excepts those in casback reward 
+t.RRN == cr.TransactionRefNo 
+SELECT 
+t.RRN AS TransactionId, 
+t.FromAccount AS WalletId,
+t.Amount AS Amount ,
+c.cnic  AS CNIC,
+r.DeviceIMEI As DeviceIMEI ,
+t.Activity  AS MerchantName , 
+'Prepaid' As FeatureCode 
+   from tblActivityLog t
+JOIN IBanking.dbo.tbl_CustomerRegistration_Wallet (NOLOCK) c 
+    ON t.FromAccount = c.WalletId   
+Right JOIN IBanking.dbo.CashbackRewards cr  (NOLOCK) cr
+    ON t.RRN <> cr.TransactionRefNo   
+LEFT JOIN IBanking.dbo.tbl_CustomerRegistration (NOLOCK) r
+    ON r.CNIC = c.CNIC 
+WHERE SUBSTRING(t.FromAccount, 1 , 4) =  '9351' 
+  AND  ErrorCode in( '00','000') and Status = 'Successful' 
+  --AND CAST (t.StampDate AS DATE) = CAST (GETDATE() AS DATE)
